@@ -1,6 +1,10 @@
 import streamlit as st
 import pandas as pd
 import subprocess
+import warnings
+
+# Suppress specific warnings
+warnings.filterwarnings('ignore')
 
 # Function to load data
 def load_data(file_path):
@@ -49,9 +53,12 @@ col1, col2 = st.columns([1, 1])
 with col1:
     if st.button('Traffic'):
         try:
+            # First run the overwrite.py script
+            subprocess.run(['python', '/Users/tamilselvans/tech_talk/overwrite.py'], check=True)
+            # Then run the firewall.py script
             subprocess.Popen(['python', '/Users/tamilselvans/tech_talk/firewall.py'])
             st.success('Traffic script is running in the background.')
-        except Exception as e:
+        except subprocess.CalledProcessError as e:
             st.error(f"Failed to run traffic script: {e}")
 
 with col2:
