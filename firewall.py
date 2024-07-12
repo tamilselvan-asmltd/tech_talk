@@ -56,7 +56,7 @@ def main():
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         log_traffic_data(log_file, timestamp, ip, port, traffic_type, action)
         print(f"{timestamp} - IP: {ip}, Port: {port}, Traffic Type: {traffic_type}, Action: {action}")
-        time.sleep(3)
+        time.sleep(2)
 
 if __name__ == "__main__":
     main()

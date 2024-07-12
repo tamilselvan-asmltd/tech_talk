@@ -27,6 +27,10 @@ def get_firewall_logs():
 def get_rules_data():
     return load_data('/Users/tamilselvans/tech_talk/rules.csv')
 
+# Load user feedback data
+def get_feedback_data():
+    return load_data('/Users/tamilselvans/tech_talk/user_feedback.csv')
+
 # Initialize session state
 if 'df' not in st.session_state:
     st.session_state.df = get_firewall_logs()
@@ -34,13 +38,16 @@ if 'df' not in st.session_state:
 if 'rules_df' not in st.session_state:
     st.session_state.rules_df = get_rules_data()
 
+if 'feedback_df' not in st.session_state:
+    st.session_state.feedback_df = get_feedback_data()
+
 # Title of the app
-st.title('Editable Firewall Logs Table')
+st.title('Firewall Logs Table')
 
 # Layout for the top buttons
 col1, col2 = st.columns([1, 1])
 with col1:
-    if st.button('Traffic Generator'):
+    if st.button('Traffic'):
         try:
             subprocess.Popen(['python', '/Users/tamilselvans/tech_talk/firewall.py'])
             st.success('Traffic script is running in the background.')
@@ -57,15 +64,16 @@ edited_df = st.data_editor(st.session_state.df, key='data_editor')
 # Layout for the bottom buttons
 col3, col4, col5 = st.columns([1, 1, 1])
 with col3:
-    if st.button('Save'):
+    if st.button('Save rule'):
         if edited_df['Select'].any():
             save_selected_rows(edited_df)
+            st.session_state.feedback_df = get_feedback_data()  # Refresh feedback table
             st.success('Selected rows have been saved to user_feedback.csv')
         else:
             st.warning('No rows selected')
 
 with col4:
-    if st.button('Delete'):
+    if st.button('Delete rule'):
         if edited_df['Select'].any():
             st.session_state.df = delete_selected_rows(edited_df)
             st.success('Selected rows have been deleted')
@@ -79,6 +87,14 @@ with col5:
             st.success('Model script has run successfully.')
         except subprocess.CalledProcessError as e:
             st.error(f"Failed to run model script: {e}")
+
+# Display feedback.csv file as a table in between
+st.subheader('Feedback Rule Table')
+
+if st.button('Refresh Feedback Table'):
+    st.session_state.feedback_df = get_feedback_data()
+
+st.write(st.session_state.feedback_df)
 
 # Display rules.csv file as a table at the bottom
 st.subheader('Rules Table')
